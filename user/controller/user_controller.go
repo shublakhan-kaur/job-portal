@@ -2,8 +2,9 @@ package controller
 
 import (
 	"net/http"
-	"user/model"
-	"user/service"
+
+	"github.com/shublakhan-kaur/job-portal/user/model"
+	"github.com/shublakhan-kaur/job-portal/user/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -36,8 +37,9 @@ func GetUserById() gin.HandlerFunc {
 		result := service.GetUserById(userId).Decode(&user)
 		if result != nil {
 			ctx.JSON(http.StatusBadRequest, model.Response{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": result.Error()}})
+		} else {
+			ctx.JSON(http.StatusOK, model.Response{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": user}})
 		}
-		ctx.JSON(http.StatusOK, model.Response{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": user}})
 	}
 }
 
@@ -58,7 +60,7 @@ func UpdateUserById() gin.HandlerFunc {
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, model.Response{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
 		}
-		if result != nil {
+		if result != nil && err == nil {
 			result.Decode(&user)
 			ctx.JSON(http.StatusOK, model.Response{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": user}})
 		} else {

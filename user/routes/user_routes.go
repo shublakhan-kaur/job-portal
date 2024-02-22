@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"user/controller"
+	"github.com/shublakhan-kaur/job-portal/user/controller"
 
 	"github.com/gin-gonic/gin"
 )
