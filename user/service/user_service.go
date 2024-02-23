@@ -10,39 +10,36 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func CreateUser(user *model.User) (*mongo.InsertOneResult, error) {
+func CreateUser(user *model.User) *mongo.InsertOneResult {
 	var DB *mongo.Client = config.ConnectDB()
-	userCollection := config.GetCollection(DB, config.EnvMongoCollection("MONGO_USER_COLLECTION"))
+	userCollection := config.GetCollection(DB, config.EnvMongoCollection())
 	defer DB.Disconnect(context.Background())
 	result, err := userCollection.InsertOne(context.Background(), user)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	//fmt.Println(result)
-
-	return result, nil
-
+	return result
 }
 
 func GetUserById(userId string) *mongo.SingleResult {
 	var DB *mongo.Client = config.ConnectDB()
-	userCollection := config.GetCollection(DB, config.EnvMongoCollection("MONGO_USER_COLLECTION"))
+	userCollection := config.GetCollection(DB, config.EnvMongoCollection())
 	defer DB.Disconnect(context.Background())
 	result := userCollection.FindOne(context.Background(), bson.M{"userid": userId})
 	return result
 }
 
-func UpdateUserById(user *model.User, userId string) (*mongo.SingleResult, error) {
+func UpdateUserById(user *model.User, userId string) *mongo.SingleResult {
 	var DB *mongo.Client = config.ConnectDB()
-	userCollection := config.GetCollection(DB, config.EnvMongoCollection("MONGO_USER_COLLECTION"))
+	userCollection := config.GetCollection(DB, config.EnvMongoCollection())
 	defer DB.Disconnect(context.Background())
 	update := bson.M{"name": user.Name, "email": user.Email, "phone": user.Phone, "work_auth": user.Work_auth}
 	result, err := userCollection.UpdateOne(context.Background(), bson.M{"userid": userId}, bson.M{"$set": update})
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 	if result.MatchedCount == 1 {
-		return GetUserById(userId), nil
+		return GetUserById(userId)
 	}
-	return nil, nil
+	return nil
 }

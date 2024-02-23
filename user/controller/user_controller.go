@@ -22,10 +22,7 @@ func CreateUser() gin.HandlerFunc {
 			Phone:     user.Phone,
 			Work_auth: user.Work_auth,
 		}
-		result, err := service.CreateUser(&newUser)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, model.Response{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
-		}
+		result := service.CreateUser(&newUser)
 		ctx.JSON(http.StatusCreated, model.Response{Status: http.StatusCreated, Message: "success", Data: map[string]interface{}{"data": result.InsertedID}})
 	}
 }
@@ -56,15 +53,14 @@ func UpdateUserById() gin.HandlerFunc {
 			Phone:     user.Phone,
 			Work_auth: user.Work_auth,
 		}
-		result, err := service.UpdateUserById(&updateUser, userId)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, model.Response{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
-		}
-		if result != nil && err == nil {
-			result.Decode(&user)
-			ctx.JSON(http.StatusOK, model.Response{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": user}})
-		} else {
-			ctx.JSON(http.StatusBadRequest, model.Response{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+		result := service.UpdateUserById(&updateUser, userId)
+		if result != nil {
+			err := result.Decode(&user)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, model.Response{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
+			} else {
+				ctx.JSON(http.StatusOK, model.Response{Status: http.StatusOK, Message: "success", Data: map[string]interface{}{"data": user}})
+			}
 		}
 	}
 }
